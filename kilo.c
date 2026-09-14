@@ -93,6 +93,15 @@ int getWindowSize(int *rows, int *cols) {
     }
 }
 
+/*** append buffer ***/
+
+struct abuf {
+    char *b;
+    int len;
+};
+
+#define ABUF_INIT {NULL, 0}
+
 /*** output ***/
 
 void editorDrawRows() {
@@ -114,6 +123,7 @@ void editorRefreshScreen() {
 
     write(STDOUT_FILENO, "\x1b[H", 3);
 }
+
 /*** input ***/
 
 void editorProcessKeypress() {
