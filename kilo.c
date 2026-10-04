@@ -19,6 +19,7 @@
 /*** defines ***/
 
 #define KILO_VERSION "0.0.1"
+#define KILO_TAB_STOP 8
 
 #define CTRL_KEY(k) ((k) & 0x1f)
 
@@ -171,13 +172,22 @@ int getWindowSize(int *rows, int *cols) {
 /*** row operations ***/
 
 void editorUpdateRow(erow *row){
-    free(row->render);
-    row->render = malloc(row->size + 1);
-
+    int tabs = 0;
     int j;
+    for(j = 0; j < row->size; j++)
+        if (row->chars[j] == '\t') tabs++;
+
+    free(row->render);
+    row->render = malloc(row->size + tabs*7 + 1);
+
     int idx = 0;
-    for (j = 0; j < row -> size; j++) {
-        row->render[idx++] = row->chars[j];
+    for (j = 0; j < row->size; j++) {
+        if (row->chars[j] == '\t') {
+            row->render[idx++] = ' ';
+            while (idx % 8 != 0) row->render[idx++] = ' ';
+        } else {
+            row->render[idx++] = row->chars[j];
+        }
     }
     row->render[idx] = '\0';
     row->rsize = idx;
@@ -194,6 +204,8 @@ void editorAppendRow(char *s, size_t len) {
 
     E.row[at].rsize = 0;
     E.row[at].render = NULL;
+    editorUpdateRow(&E.row[at]);
+
     E.numrows++;
 }
 /*** file i/o ***/
@@ -274,10 +286,10 @@ void editorDrawRows(struct abuf *ab) {
                 abAppend(ab, "~", 1);
             }
         } else {
-            int len = E.row[filerow].size - E.coloff;
+            int len = E.row[filerow].rsize - E.coloff;
             if (len < 0) len = 0;
             if (len > E.screencols) len = E.screencols;
-            abAppend(ab, &E.row[filerow].chars[E.coloff], len);
+            abAppend(ab, &E.row[filerow].render[E.coloff], len);
         }
 
         abAppend(ab, "\x1b[K", 3);
