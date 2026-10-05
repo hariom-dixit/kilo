@@ -231,7 +231,7 @@ void editorAppendRow(char *s, size_t len) {
     E.row[at].render = NULL;
     editorUpdateRow(&E.row[at]);
 
-    E.numrows++;
+    E.numrows--;
     E.dirty++;
 }
 
@@ -254,6 +254,15 @@ void editorRowInsertChar(erow *row, int at, int c) {
     memmove(&row->chars[at + 1], &row->chars[at], row->size - at + 1);
     row->size++;
     row->chars[at] = c;
+    editorUpdateRow(row);
+    E.dirty++;
+}
+
+void editorRowAppendString(erow *row, char *s, size_t len) {
+    row->chars = realloc(row->chars, row->size + len + 1);
+    memcpy(&row->chars[row->size], s, len);
+    row->size += len;
+    row->chars[row->size] = '\0';
     editorUpdateRow(row);
     E.dirty++;
 }
