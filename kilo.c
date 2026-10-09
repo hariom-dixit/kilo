@@ -71,6 +71,7 @@ struct editorConfig E;
 
 void editorSetStatusMessage(const char *fmt, ...);
 void editorRefreshScreen();
+char *editorPrompt(char *prompt);
 
 /*** terminal ***/
 
@@ -361,7 +362,9 @@ void editorOpen(char *filename) {
 }
 
 void editorSave() {
-    if (E.filename == NULL) return;
+    if (E.filename == NULL) {
+        E.filename = editorPrompt("Save as: %s");
+    }
 
     int len;
     char *buf = editorRowsToString(&len);
@@ -527,8 +530,10 @@ void editorSetStatusMessage(const char *fmt, ...) {
 char *editorPrompt(char *prompt) {
     size_t bufsize = 128;
     char *buf = malloc(bufsize);
+
     size_t buflen = 0;
     buf[0] = '\0';
+
     while (1) {
         editorSetStatusMessage(prompt, buf);
         editorRefreshScreen();
