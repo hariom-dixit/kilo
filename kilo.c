@@ -235,7 +235,7 @@ void editorInsertRow(int at, char *s, size_t len) {
     E.row[at].render = NULL;
     editorUpdateRow(&E.row[at]);
 
-    E.numrows--;
+    E.numrows++;
     E.dirty++;
 }
 
